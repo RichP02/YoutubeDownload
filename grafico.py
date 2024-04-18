@@ -15,15 +15,17 @@ root.columnconfigure(1, weight=1)
 
 # Variables
 link = tk.StringVar(root)
+resultado = tk.StringVar(root)
 
 # Funciones
-def descarga():
+def descarga_video():
     try:
-        youtubeObject = YouTube(link.get())
-        youtubeObject.streams.get_highest_resolution().download()
-        print("Descarga completada")
+        yt = YouTube(link.get())
+        video = yt.streams.get_highest_resolution()
+        video.download(output_path="Descargas")
+        resultado.set("Descarga completada")
     except Exception as e:
-        print("Error:", e)
+        resultado.set("El link no esta correcto")
 
 # link
 link_label = ttk.Label(
@@ -60,7 +62,7 @@ button_mp4 = ttk.Button(
     root,
     text="Mp4",
     width=50,
-    command=descarga
+    command=descarga_video
 )
 button_mp4.grid(
     column=0,
@@ -94,6 +96,25 @@ button_file.grid(
     sticky=tk.W,
     padx=5,
     pady=5
+)
+
+# Resultado
+label_resultado = ttk.Label(
+    root,
+    text="",
+    width=25,
+    textvariable=resultado,
+    background="#43394A",
+    anchor="center",
+    foreground="white"
+)
+label_resultado.grid(
+    column=0,
+    row=2,
+    sticky="WE",
+    padx=5,
+    pady=5,
+    columnspan=3
 )
 
 
