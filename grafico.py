@@ -18,13 +18,14 @@ root.columnconfigure(1, weight=1)
 # Variables
 link = tk.StringVar(root)
 resultado = tk.StringVar(root)
+carpeta_destino = "Descargas"
 
 # Funciones
 def descarga_video():
     try:
         yt = YouTube(link.get())
         video = yt.streams.get_highest_resolution()
-        video.download(output_path="Descargas")
+        video.download(output_path=carpeta_destino)
         resultado.set("Descarga completada")
     except Exception as e:
         resultado.set("El link no esta correcto")
@@ -33,26 +34,31 @@ def descarga_audio():
     try:
         yt = YouTube(link.get())
         video = yt.streams.filter(only_audio=True).first()
-        video.download(output_path="Descargas")
+        video.download(output_path=carpeta_destino)
         resultado.set("Descarga completada")
     except Exception as e:
         resultado.set("El link no esta correcto")
 
+# Funcion leer archivo
 def leer_enlaces_desde_txt(ruta_archivo):
     with open(ruta_archivo, 'r') as archivo:
         return archivo.read().splitlines()
 
 def descargar_videos(enlaces, carpeta_destino):
+    exito = True
     for enlace in enlaces:
         try:
             yt = YouTube(enlace)
             video = yt.streams.get_highest_resolution()
             video.download(output_path=carpeta_destino)
-            print(f"Video descargado: {yt.title}")
         except Exception as e:
             print(f"Error al descargar el video {enlace}: {e}")
+            exito = False
+    if exito:
+        resultado.set("Descarga completada")
+    else:
+        resultado.set("Hubo un problema durante la descarga de algunos videos")
 
-# Funciones del segundo código
 def seleccionar_archivo():
     filetypes = (
         ('text files', '*.txt'),
@@ -62,13 +68,8 @@ def seleccionar_archivo():
         title='Open a file',
         initialdir='/',
         filetypes=filetypes)
-
     # Obtener enlaces del archivo seleccionado
     enlaces = leer_enlaces_desde_txt(filename)
-
-    # Carpeta de destino
-    carpeta_destino = "Descargas"  # Carpeta donde se guardarán los videos
-
     # Descargar videos
     descargar_videos(enlaces, carpeta_destino)
 
