@@ -1,5 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
+from tkinter import filedialog as fd
+from tkinter.messagebox import showinfo
 from pytube import YouTube
 
 # ventana root
@@ -26,6 +28,49 @@ def descarga_video():
         resultado.set("Descarga completada")
     except Exception as e:
         resultado.set("El link no esta correcto")
+
+def descarga_audio():
+    try:
+        yt = YouTube(link.get())
+        video = yt.streams.filter(only_audio=True).first()
+        video.download(output_path="Descargas")
+        resultado.set("Descarga completada")
+    except Exception as e:
+        resultado.set("El link no esta correcto")
+
+def leer_enlaces_desde_txt(ruta_archivo):
+    with open(ruta_archivo, 'r') as archivo:
+        return archivo.read().splitlines()
+
+def descargar_videos(enlaces, carpeta_destino):
+    for enlace in enlaces:
+        try:
+            yt = YouTube(enlace)
+            video = yt.streams.get_highest_resolution()
+            video.download(output_path=carpeta_destino)
+            print(f"Video descargado: {yt.title}")
+        except Exception as e:
+            print(f"Error al descargar el video {enlace}: {e}")
+
+# Funciones del segundo código
+def seleccionar_archivo():
+    filetypes = (
+        ('text files', '*.txt'),
+        ('All files', '*.*')
+    )
+    filename = fd.askopenfilename(
+        title='Open a file',
+        initialdir='/',
+        filetypes=filetypes)
+
+    # Obtener enlaces del archivo seleccionado
+    enlaces = leer_enlaces_desde_txt(filename)
+
+    # Carpeta de destino
+    carpeta_destino = "Descargas"  # Carpeta donde se guardarán los videos
+
+    # Descargar videos
+    descargar_videos(enlaces, carpeta_destino)
 
 # link
 link_label = ttk.Label(
@@ -75,7 +120,8 @@ button_mp4.grid(
 button_mp3 = ttk.Button(
     root,
     text="Mp3",
-    width=50
+    width=50,
+    command=descarga_audio
 )
 button_mp3.grid(
     column=1,
@@ -88,7 +134,8 @@ button_mp3.grid(
 button_file = ttk.Button(
     root,
     text="Cargar Archivo .txt",
-    width=35
+    width=35,
+    command=seleccionar_archivo
 )
 button_file.grid(
     column=2,
@@ -116,6 +163,5 @@ label_resultado.grid(
     pady=5,
     columnspan=3
 )
-
 
 root.mainloop()
